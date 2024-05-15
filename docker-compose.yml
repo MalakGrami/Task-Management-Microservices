@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  api-gateway:
+    build:
+      context: ./api-gateway
+    ports:
+      - "3000:3000"
+    depends_on:
+      - user-service
+      - task-service  # Add task-service as a dependency
+
+  user-service:
+    build:
+      context: ./user-service
+    ports:
+      - "50051:50051"
+
+  task-service: 
+    build:
+      context: ./task-service  # Use the Dockerfile in the task-service directory
+    ports:
+      - "4000:4000"  # Expose the port used by the task-service container
+
+  mongodb:  # New service for MongoDB
+    image: mongo:latest  # Use the official image
+    volumes:
+      - mongo-data:/data/db  # Create a named volume for data persistence
+    ports:
+      - "27017:27017"  # Expose MongoDB port
+
+volumes:
+  mongo-data:  # Define the named volume
