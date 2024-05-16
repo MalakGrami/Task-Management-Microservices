@@ -1,18 +1,24 @@
 const grpc = require('grpc');
 const protoLoader = require('@grpc/proto-loader');
 
-const userServiceURL = process.env.USER_SERVICE_URL || 'localhost';
+// Update the service URLs to use the service names defined in Docker Compose
+const userServiceHost = process.env.USER_SERVICE_HOST || 'user-service'; // Docker Compose service name
 const userServicePort = process.env.USER_SERVICE_PORT || '50051';
 
-const packageDefinition = protoLoader.loadSync('user.proto', {
+try {
+  const packageDefinition = protoLoader.loadSync('user.proto', {
     keepCase: true,
     longs: String,
     enums: String,
     defaults: true,
     oneofs: true,
-});
+  });
 
-const userServiceProto = grpc.loadPackageDefinition(packageDefinition).UserService;
-const userServiceClient = new userServiceProto(`${userServiceURL}:${userServicePort}`, grpc.credentials.createInsecure());
+  const userServiceProto = grpc.loadPackageDefinition(packageDefinition).UserService;
+  const userServiceClient = new userServiceProto(`${userServiceHost}:${userServicePort}`, grpc.credentials.createInsecure());
 
-module.exports = userServiceClient;
+  module.exports = userServiceClient;
+} catch (error) {
+  console.error('Error creating gRPC client:', error);
+  
+}

@@ -1,4 +1,8 @@
-version: '3.8'
+version: '3.9'
+
+networks:
+  my-network:
+    driver: bridge
 
 services:
   api-gateway:
@@ -8,26 +12,34 @@ services:
       - "3000:3000"
     depends_on:
       - user-service
-      - task-service  # Add task-service as a dependency
+      - task-service
+    networks:
+      - my-network
 
   user-service:
     build:
       context: ./user-service
     ports:
       - "50051:50051"
+    networks:
+      - my-network
 
   task-service: 
     build:
-      context: ./task-service  # Use the Dockerfile in the task-service directory
+      context: ./task-service
     ports:
-      - "4000:4000"  # Expose the port used by the task-service container
+      - "4000:4000"
+    networks:
+      - my-network
 
-  mongodb:  # New service for MongoDB
-    image: mongo:latest  # Use the official image
+  mongodb:
+    image: mongo:latest
     volumes:
-      - mongo-data:/data/db  # Create a named volume for data persistence
+      - mongo-data:/data/db
     ports:
-      - "27017:27017"  # Expose MongoDB port
+      - "27017:27017"
+    networks:
+      - my-network
 
 volumes:
-  mongo-data:  # Define the named volume
+  mongo-data:
